@@ -22,7 +22,7 @@ mask = df.groupby("date").count()["time"] < 600
 mask = mask.reset_index().replace(False, np.NaN).dropna()
 for day in list(mask.date):
     df.loc[df["date"] == day] = np.NaN
-df = df.dropna()
+df=df.dropna().reset_index()
 
 df.to_csv("dax_cleaned.csv")
 
