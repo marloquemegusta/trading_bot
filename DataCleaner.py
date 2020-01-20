@@ -1,5 +1,8 @@
 # requires numpy and pandas to work
-def DataCleaner(path, std=1, return_full_dataFrame=False):
+from pandas import DataFrame
+
+
+def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
     import pandas as pd
     import numpy as np
     df = pd.read_csv(path, usecols=(
@@ -87,9 +90,13 @@ def DataCleaner(path, std=1, return_full_dataFrame=False):
     dictMl = {'date': days.to_numpy().flatten().tolist(), "open": dOpen,
               "close": dClose, "min": dMin, "max": dMax,
               "bullish": bullish.astype(int)}
-    dfMl = pd.DataFrame(dictMl).dropna()
+    dfMl: DataFrame = pd.DataFrame(dictMl).dropna()
 
-    if return_full_dataFrame:
+    if return_full_dataFrame and return_hinges:
+        return dfMl, dfCleaned, hingesdf
+    elif return_hinges:
+        return dfMl, hingesdf
+    elif return_full_dataFrame:
         return dfMl, dfCleaned
     else:
         return dfMl
