@@ -86,10 +86,11 @@ def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
     bottomBreakingIndexes = df2[["date", "breaks bottom limit"]].replace(False, np.NaN).groupby(
         "date").idxmax().replace(np.NaN, 999999999)
     bullish = topBreakingIndexes.values.flatten() < bottomBreakingIndexes.values.flatten()
-
+    limitBreakingIndex = np.minimum(topBreakingIndexes, bottomBreakingIndexes).values.flatten()
     dictMl = {'date': days.to_numpy().flatten().tolist(), "open": dOpen,
               "close": dClose, "min": dMin, "max": dMax,
-              "bullish": bullish.astype(int)}
+              "bullish": bullish.astype(int),
+              "limit breaking index": limitBreakingIndex}
     dfMl: DataFrame = pd.DataFrame(dictMl).dropna()
 
     if return_full_dataFrame and return_hinges:
