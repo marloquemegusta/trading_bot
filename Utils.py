@@ -2,7 +2,7 @@
 from pandas import DataFrame
 
 
-def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
+def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False):
     import pandas as pd
     import numpy as np
     df = pd.read_csv(path, usecols=(
@@ -11,13 +11,9 @@ def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
     df["time"] = df["time"] / 100
     # we delete every period before 9 PM
     df = df.loc[df["time"] > 900]
-    # we drop every day that has less than 600 minutes (days when close is early)
-    mask = df.groupby("date").count()["time"] < 600
-    mask = mask.reset_index().replace(False, np.NaN).dropna()
-    for day in list(mask.date):
-        df.loc[df["date"] == day] = np.NaN
-    df = df.dropna().reset_index(drop=True)
+    df = df.reset_index()
     dfCleaned = df.copy()
+
     # opening of the first period of the day and thus, opening of the day
     dOpen = df.groupby("date").first().open.values
     print(str(dOpen.size) + " days loaded")
@@ -50,6 +46,9 @@ def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
 
     # dayIndex contains the index of the first period of each day in df
     dayIndex = df["date"].drop_duplicates().index
+
+    # day lengths contain the length of each day in minutes
+    dayLengths = df.groupby("date").count()["time"]
     df2 = df.copy()
 
     # we initialize new columns
@@ -64,10 +63,10 @@ def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
     df2.loc[dayIndex, "upper limit"] = (dOpen + stretches)
     df2.loc[dayIndex, "bottom limit"] = (dOpen - stretches)
 
-    # we place both limits at the openning of the day at minute N(500 in this case)
-    N = 500
-    df2.loc[dayIndex + N, "upper limit"] = dOpen
-    df2.loc[dayIndex + N, "bottom limit"] = dOpen
+    # we place both limits at the openning of the day at the end of the day so that we close open positions
+    df2.loc[dayIndex + dayLengths - 1, "upper limit"] = dOpen
+    df2.loc[dayIndex + dayLengths - 1, "upper limit"] = dOpen
+    df2.loc[dayIndex + dayLengths - 1, "stretch"] = 0
 
     # finally, we perform a forward fill  by filling all NaN value with the last
     # valid value
@@ -87,6 +86,7 @@ def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
         "date").idxmax().replace(np.NaN, 999999999)
     bullish = topBreakingIndexes.values.flatten() < bottomBreakingIndexes.values.flatten()
     limitBreakingIndex = np.minimum(topBreakingIndexes, bottomBreakingIndexes).values.flatten()
+
     dictMl = {'date': days.to_numpy().flatten().tolist(), "open": dOpen,
               "close": dClose, "min": dMin, "max": dMax,
               "bullish": bullish.astype(int),
@@ -101,3 +101,17 @@ def DataCleaner(path, std=1, return_full_dataFrame=False, return_hinges=False):
         return dfMl, dfCleaned
     else:
         return dfMl
+
+
+def FirstMinutesAdder(dfMinute, dfDay, nMinutes):
+    # cada día añadimos nMinutes columnas, indicando cada una el precio en el cierre
+    # de ese minuto.
+    dayIndex = dfMinute["date"].drop_duplicates().index
+    for minute in np.arange(0, nMinutes):
+        index = (dayIndex + minute).to_numpy()
+        period = dfMinute.iloc[index]
+        period.columns = ["date", "open min" + " " + str(minute), "max min" + " " + str(minute),
+                          "min min" + " " + str(minute), "close min" + " " + str(minute)]
+        period = period.set_index("date")
+        dfDay = dfDay.set_index("date").join(period).reset_index()
+    return dfDay
