@@ -113,5 +113,5 @@ def FirstMinutesAdder(dfMinute, dfDay, nMinutes):
         period.columns = ["date", "open min" + " " + str(minute), "max min" + " " + str(minute),
                           "min min" + " " + str(minute), "close min" + " " + str(minute)]
         period = period.set_index("date")
-        dfDay = dfDay.set_index("date").join(period).reset_index()
+        dfDay = dfDay.set_index("date").join(period).reset_index(drop=True)
     return dfDay
