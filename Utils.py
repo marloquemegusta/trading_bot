@@ -11,7 +11,7 @@ def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False):
     df["time"] = df["time"] / 100
     # we delete every period before 9 PM
     df = df.loc[df["time"] > 900]
-    df = df.reset_index()
+    df = df.reset_index(drop=True)
     dfCleaned = df.copy()
 
     # opening of the first period of the day and thus, opening of the day
@@ -113,5 +113,5 @@ def FirstMinutesAdder(dfMinute, dfDay, nMinutes):
         period.columns = ["date", "open min" + " " + str(minute), "max min" + " " + str(minute),
                           "min min" + " " + str(minute), "close min" + " " + str(minute)]
         period = period.set_index("date")
-        dfDay = dfDay.set_index("date").join(period).reset_index(drop=True)
+        dfDay = dfDay.set_index("date").join(period).reset_index()
     return dfDay
