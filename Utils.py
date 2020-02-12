@@ -65,7 +65,7 @@ def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False):
 
     # we place both limits at the openning of the day at the end of the day so that we close open positions
     df2.loc[dayIndex + dayLengths - 1, "upper limit"] = dOpen
-    df2.loc[dayIndex + dayLengths - 1, "upper limit"] = dOpen
+    df2.loc[dayIndex + dayLengths - 1, "bottom limit"] = dOpen
     df2.loc[dayIndex + dayLengths - 1, "stretch"] = 0
 
     # finally, we perform a forward fill  by filling all NaN value with the last
