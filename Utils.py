@@ -73,8 +73,8 @@ def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False):
     df2 = df2.fillna(method='ffill')
     # for each period (minutes in this case) we define a flag to indicate wheter
     # it ends up above upper limit or bellow bottom limit
-    df2["breaks upper limit"] = df2["close"] > df2["upper limit"]
-    df2["breaks bottom limit"] = df2["close"] < df2["bottom limit"]
+    df2["breaks upper limit"] = df2["close"] >= df2["upper limit"]
+    df2["breaks bottom limit"] = df2["close"] <= df2["bottom limit"]
 
     # we get the indexes of the first valid (true) value on the "breaks limit"
     # column. If the index on "breaks top limit" is lowe than the index on
