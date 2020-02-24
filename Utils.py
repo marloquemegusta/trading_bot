@@ -124,6 +124,6 @@ def LimitBreakingIndex(dfMinute, dailyLimits, above):
         dfMinute["breaks limit"] = dfMinute["close"] >= dfMinute["limit"]
     elif above == 0:
         dfMinute["breaks limit"] = dfMinute["close"] <= dfMinute["limit"]
-    dfMinute = dfMinute.replace(False, np.NaN)
+    dfMinute = dfMinute.replace(False, numpy.NaN)
 
-    return dfMinute.groupby("date", as_index=False)["breaks limit"].idxmax().replace(np.NaN, np.inf)
+    return dfMinute.groupby("date", as_index=False)["breaks limit"].idxmax().replace(numpy.NaN, numpy.inf)
