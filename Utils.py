@@ -118,12 +118,14 @@ def FirstMinutesAdder(dfMinute, dfDay, nMinutes):
 
 
 def LimitBreakingIndex(dfMinute, dailyLimits, above):
+    import numpy as np
+
     dfMinute.loc[dfMinute.drop_duplicates("date").index, "limit"] = dailyLimits
     dfMinute.ffill(inplace=True)
     if above == 1:
         dfMinute["breaks limit"] = dfMinute["close"] >= dfMinute["limit"]
     elif above == 0:
         dfMinute["breaks limit"] = dfMinute["close"] <= dfMinute["limit"]
-    dfMinute = dfMinute.replace(False, numpy.NaN)
+    dfMinute = dfMinute.replace(False, np.NaN)
 
-    return dfMinute.groupby("date", as_index=False)["breaks limit"].idxmax().replace(numpy.NaN, numpy.inf)
+    return dfMinute.groupby("date", as_index=False)["breaks limit"].idxmax().replace(np.NaN, np.inf)
