@@ -1,0 +1,66 @@
+from ibapi.client import EClient
+from ibapi.wrapper import EWrapper
+from ibapi.contract import Contract
+import datetime
+
+from ibapi.utils import iswrapper
+import time
+from threading import Thread
+import sys
+
+
+class SimpleClient(EWrapper, EClient):
+    """ Serves as the client and the wrapper """
+
+    def __init__(self, addr, port, client_id):
+        EWrapper.__init__(self)
+        EClient.__init__(self, self)
+        # Connect to TWS
+        self.connect(addr, port, client_id)
+        # Launch the client thread
+        thread = Thread(target=self.run)
+        thread.start()
+        self.open = []
+        self.close = []
+        self.high = []
+        self.low = []
+
+    @iswrapper
+    def currentTime(self, cur_time):
+        t = datetime.date.fromtimestamp(cur_time)
+        print('Current time: {}'.format(t))
+
+    @iswrapper
+    def error(self, req_id, code, msg):
+        print('Error {}: {}'.format(code, msg))
+
+    @iswrapper
+    def historicalData(self, reqId, bar):
+        self.open.append(bar.open)
+        self.high.append(bar.high)
+        self.low.append(bar.low)
+        self.close.append(bar.close)
+
+
+def main():
+    # Create the client and connect to TWS
+    client = SimpleClient("104.214.58.192", 9999, 0)
+    # specify the contract
+    contract = Contract()
+    contract.symbol = "IBEX"
+    contract.secType = "CONTFUT"
+    contract.exchange = "MEFFRV"
+
+    # call for the historical
+    client.reqHistoricalData(0, contract, "", "4 D", "1 day", "MIDPOINT", 0, 1, False, [])
+
+    # Sleep while the request is processed
+    time.sleep(5)
+    print(client.open)
+    # Disconnect from TWS
+    # client.disconnect()
+    sys.exit()
+
+
+if __name__ == "__main__":
+    main()
