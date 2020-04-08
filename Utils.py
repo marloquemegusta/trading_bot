@@ -2,7 +2,7 @@
 from pandas import DataFrame
 
 
-def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False):
+def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False,minHour,maxHour):
     import pandas as pd
     import numpy as np
     df = pd.read_csv(path, usecols=(
@@ -10,7 +10,7 @@ def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False):
     df.columns = ["date", "time", "open", "high", "low", "close"]
     df["time"] = df["time"] / 100
     # we delete every period before 9 PM
-    df = df.loc[df["time"] > 900]
+    df = df.loc[(df["time"] > minHour)&(df["time"] <maxHour)]
     df = df.reset_index(drop=True)
     dfCleaned = df.copy()
 
