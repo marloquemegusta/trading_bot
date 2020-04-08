@@ -2,7 +2,7 @@
 from pandas import DataFrame
 
 
-def DataLoader(path, std=1, return_full_dataFrame=False, return_hinges=False,minHour,maxHour):
+def DataLoader(path, minHour,maxHour, std=1, return_full_dataFrame=False, return_hinges=False):
     import pandas as pd
     import numpy as np
     df = pd.read_csv(path, usecols=(
