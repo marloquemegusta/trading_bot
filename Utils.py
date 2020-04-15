@@ -2,7 +2,7 @@
 from pandas import DataFrame
 
 
-def DataLoader(path, minHour,maxHour, std=1, return_full_dataFrame=False, return_hinges=False):
+def DataLoader(path, minHour, maxHour, std=1, return_full_dataFrame=False, return_hinges=False):
     import pandas as pd
     import numpy as np
     df = pd.read_csv(path, usecols=(
@@ -129,4 +129,4 @@ def LimitBreakingIndex(dfMinute, dailyLimits, above):
         df["breaks limit"] = df["close"] <= df["limit"]
     df = df.replace(False, np.NaN)
 
-    return df.groupby("date", as_index=False)["breaks limit"].idxmax().replace(np.NaN, np.inf)
+    return df.groupby("date", as_index=True)["breaks limit"].idxmax().replace(np.NaN, np.inf)
