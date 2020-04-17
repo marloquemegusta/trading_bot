@@ -13,7 +13,7 @@ def DataLoader(path, minHour, maxHour, std=1, return_full_dataFrame=False, retur
     df = df.loc[(df["time"] > minHour)&(df["time"] <maxHour)]
     df = df.reset_index(drop=True)
     dayLengths = df.groupby("date").count()["open"]
-    df =df.loc[np.isin(df["date"].values,dayLengths[dayLengths>20].index)]
+    df =df.loc[np.isin(df["date"].values,dayLengths[dayLengths>20].index)].reset_index()
     dfCleaned = df.copy()
 
     # opening of the first period of the day and thus, opening of the day
