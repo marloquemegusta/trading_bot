@@ -2,7 +2,7 @@
 from pandas import DataFrame
 
 
-def DataLoader(path, minHour, maxHour, std=1, return_full_dataFrame=False, return_hinges=False):
+def DataLoader(path, minHour, maxHour, nMinutes,nDays std=1, return_full_dataFrame=False, return_hinges=False):
     import pandas as pd
     import numpy as np
     df = pd.read_csv(path, usecols=(
@@ -14,6 +14,7 @@ def DataLoader(path, minHour, maxHour, std=1, return_full_dataFrame=False, retur
     df = df.reset_index(drop=True)
     dayLengths = df.groupby("date").count()["open"]
     df =df.loc[np.isin(df["date"].values,dayLengths[dayLengths>20].index)].reset_index(drop=True)
+    df["date"]=pd.to_datetime(df["date"],format='%Y%m%d')
     dfCleaned = df.copy()
 
     # opening of the first period of the day and thus, opening of the day
@@ -94,6 +95,8 @@ def DataLoader(path, minHour, maxHour, std=1, return_full_dataFrame=False, retur
               "bullish": bullish.astype(int),
               "limit breaking index": limitBreakingIndex}
     dfMl: DataFrame = pd.DataFrame(dictMl).dropna()
+    
+	
 
     if return_full_dataFrame and return_hinges:
         return dfMl, dfCleaned, hingesdf
